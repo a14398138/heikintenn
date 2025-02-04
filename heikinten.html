@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Template</title>
+</head>
+<body>
+    <script>
+      var credits = prompt("Please enter your input:");
+var zcredits = credits.replace('#', '0');
+
+var current_status = "基礎科目", sum_grades=0,sum_weights=0;
+
+
+function processLine(line) {
+
+   line=line.trim()
+    if (line === "総合科目") current_status = line;
+var grade = line.split(/[ \u3000\t]+/).slice(-2) 
+ 
+    if (!isNaN(grade[1]) ) {
+         sum_grades+=parseInt(grade[0])*parseInt(grade[1]);
+sum_weights+=parseInt(grade[0]);
+    }
+}
+
+function parseTextByLine(text) {
+
+
+
+    const lines = text.split(/\r?\n/); // Split by newline characters (\r\n or \n)
+    lines.forEach(line => processLine(line));
+}
+
+// Usage example
+
+parseTextByLine(credits);
+alert(sum_grades/sum_weights);
+var current_status = "基礎科目", sum_grades=0,sum_weights=0;
+parseTextByLine(zcredits);
+alert(sum_grades/sum_weights);
+
+
+    </script>
+</body>
+</html>
