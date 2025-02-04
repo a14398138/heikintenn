@@ -6,40 +6,95 @@
     <title>JavaScript Template</title>
 </head>
 <body>
-    <script>
-      var credits = prompt("Please enter your input:");
-var zcredits = credits.replace('#', '0');
+    <script>// Input handling and data structures
+let credits = prompt("Please enter your input:");
+let abcount = 0;
+let currentStatus = "基礎科目";
+let sumGrades = 0;
 
-var current_status = "基礎科目", sum_grades=0,sum_weights=0;
+let sumWeights = 0;
+let IntegratedGrades = [];
+let count = 0;
 
 
+// Process individual lines of input
 function processLine(line) {
+    line = line.trim();
+    
+    // Handle status change
+    if (line === "総合科目") {
+        currentStatus = line;
+        IntegratedGrades = [];
+        return;
+    }
+    
+    // Split line into components (using Japanese spaces)
+    const parts = line.split(/[ \u3000\t]+/);
+    if (parts.length < 2) return;
+    if(parts[parts.length - 1]=="#") abcount +=parseInt(parts[parts.length - 2]);
+    const credits = parseInt(parts[parts.length - 2]);
+    const grade = parseInt(parts[parts.length - 1]);
+    
+    // Validate numeric values
 
-   line=line.trim()
-    if (line === "総合科目") current_status = line;
-var grade = line.split(/[ \u3000\t]+/).slice(-2) 
- 
-    if (!isNaN(grade[1]) ) {
-         sum_grades+=parseInt(grade[0])*parseInt(grade[1]);
-sum_weights+=parseInt(grade[0]);
+    if (isNaN(credits) || isNaN(grade)) return;
+    
+    // Process based on current status
+    if (currentStatus === "基礎科目") {
+
+        sumGrades += credits * grade;
+        sumWeights += credits;
+    } else if (currentStatus === "総合科目") {
+        IntegratedGrades.push({ credits, grade });
     }
 }
 
-function parseTextByLine(text) {
+// Process entire text input
+function calculateGrades(text) {
+    // Reset values
+    currentStatus = "基礎科目";
+    sumGrades = 0;
+    sumWeights = 0;
+    IntegratedGrades = [];
+    
+    // Process each line
+    const lines = text.split(/\r?\n/);
+    lines.forEach(processLine);
+    
+    // Sort Integrated grades (assuming by grade)
+    IntegratedGrades.sort((a, b) => b.grade - a.grade);
+    
+    // Apply weight reduction for excess courses
+    for (let i = 0; i < IntegratedGrades.length; i++) {
+count += credits;
 
-
-
-    const lines = text.split(/\r?\n/); // Split by newline characters (\r\n or \n)
-    lines.forEach(line => processLine(line));
+        if (count > 16) {
+            IntegratedGrades[i].credits *= 0.1;
+            IntegratedGrades[i].grade *= 0.1;
+        }
+if (count === 16){
+IntegratedGrades[i].credits *= 0.55;
+            IntegratedGrades[i].grade *= 0.55;
+}
+    }
+    
+    // Calculate final grades for Integrated courses
+    IntegratedGrades.forEach(grade => {
+        sumGrades += grade.grade * grade.credits;
+        sumWeights += grade.credits;
+    });
+    
+    // Return weighted average
+    return sumWeights === 0 ? 0 : sumGrades / sumWeights;
 }
 
-// Usage example
+// Calculate and display results
+const result = calculateGrades(credits);
 
-parseTextByLine(credits);
-alert(sum_grades/sum_weights);
-var current_status = "基礎科目", sum_grades=0,sum_weights=0;
-parseTextByLine(zcredits);
-alert(sum_grades/sum_weights);
+document.body.innerHTML += `
+基本平均点(欠席抜き): ${result}<br>
+基本平均点(欠席込み): ${result * sumWeights / (sumWeights + abcount)}<br>
+`;
 
 
     </script>
